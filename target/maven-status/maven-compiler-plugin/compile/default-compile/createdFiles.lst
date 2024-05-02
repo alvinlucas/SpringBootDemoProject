@@ -1,0 +1,4 @@
+com\exemple\springbootdemoproject\SpringBootDemoProjectApplication.class
+com\exemple\springbootdemoproject\model\Etudiant.class
+com\exemple\springbootdemoproject\controller\DemoMVCController.class
+com\exemple\springbootdemoproject\repository\EtudiantRepository.class
