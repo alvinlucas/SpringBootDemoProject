@@ -5,6 +5,7 @@ import com.exemple.springbootdemoproject.repository.EtudiantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,31 +15,41 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DataJpaTest
 public class TestDemoDataController {
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
     private EtudiantRepository etudiantRepository;
 
-    @BeforeEach
-    public void setup() {
-        Etudiant etudiant = new Etudiant("John Doe", 20);
-        etudiant.setId(1);
-        when(etudiantRepository.findById(1)).thenReturn(Optional.of(etudiant));
-    }
-
     @Test
-    public void testGetEtudiant() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/etudiants/{id}", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+    public void testCrudOperations() {
+        // Create
+        Etudiant etudiant = new Etudiant("John", 25);
+        etudiantRepository.save(etudiant);
+
+        // Read
+        Etudiant fetchedEtudiant = etudiantRepository.findById(etudiant.getId()).orElse(null);
+        assertNotNull(fetchedEtudiant);
+        assertEquals("John", fetchedEtudiant.getNom());
+        assertEquals(25, fetchedEtudiant.getAge());
+
+        // Update
+        fetchedEtudiant.setNom("Jane");
+        etudiantRepository.save(fetchedEtudiant);
+        Etudiant updatedEtudiant = etudiantRepository.findById(etudiant.getId()).orElse(null);
+        assertNotNull(updatedEtudiant);
+        assertEquals("Jane", updatedEtudiant.getNom());
+
+        // Delete
+        etudiantRepository.delete(updatedEtudiant);
+        Etudiant deletedEtudiant = etudiantRepository.findById(etudiant.getId()).orElse(null);
+        assertEquals(null, deletedEtudiant);
     }
 }
